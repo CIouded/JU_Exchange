@@ -3,8 +3,8 @@
 <div class="container">
 
     <h1>Universities</h1>
-    @if(Auth::user()->hasRole('Super_admin') || Auth::user()->hasRole('Admin_user')) 
-    <a href="universities/create" class="btn btn-success">Add</a>
+    @if(Auth::user()->hasRole('Super_admin') || Auth::user()->hasRole('Admin_user') || Auth::user()->hasRole('IR_user')) 
+        <a href="universities/create" class="btn btn-success">Add</a>
     @endif
     <table class="table table-striped table-bordered">
         <thead>
@@ -17,6 +17,8 @@
                 <td>Postal code</td>
                 <td>Country</td>
                 <td>City</td>
+                <td>Longitude</td>
+                <td>Latitude</td>
             </tr>
         </thead>
         <tbody>
@@ -30,6 +32,8 @@
                 <td>{{ $university->postal_code }}</td>
                 <td>{{ $university->country }}</td>
                 <td>{{ $university->city }}</td>
+                <td>{{ $university->longitude }}</td>
+                <td>{{ $university->latitude }}</td>
                 @if(Auth::user()->hasRole('Super_admin') || Auth::user()->hasRole('Admin_user')) 
                 <td>
                     <a href="universities/{{$university->Id}}/edit" class="btn btn-default">Edit</a>

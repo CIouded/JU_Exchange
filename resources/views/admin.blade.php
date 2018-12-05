@@ -23,7 +23,7 @@
                             <li><a href="home/course">Course</a></li>
                             <li><a href="home/package">Package</a></li>
                             @if(Auth::user()->hasRole('Super_admin')) 
-                            <li><a href="home/admin">Admin</a></li>
+                                <li><a href="home/admin">Admin</a></li>
                             @endif
                         </ul>
     

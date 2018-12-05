@@ -13,6 +13,13 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
+/*Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
-});
+});*/
+
+Route::get('universities', 'api\APIController@university')->middleware('cors');
+Route::get('programmes', 'api\APIController@programme')->middleware('cors');
+Route::get('packages', 'api\APIController@package')->middleware('cors');
+Route::get('courses', 'api\APIController@course')->middleware('cors');
+Route::get('coursepackage', 'api\APIController@coursePackage')->middleware('cors');
+Route::get('country', 'api\APIController@country')->middleware('cors');

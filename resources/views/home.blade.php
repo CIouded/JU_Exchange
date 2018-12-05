@@ -12,5 +12,6 @@
         <li><a href="home/course">Course</a></li>
         <li><a href="home/package">Package</a></li>
     </ul>
+    You are logged in to the regular staff user start page
 </div>
 @endsection

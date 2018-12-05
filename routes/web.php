@@ -47,19 +47,6 @@ Route::resource('home/admin', 'Admin\UserController');
 
 Auth::routes();
 
-/*Route::get('/universities', 'UniversityController@index');
-
-Route::get('/universities/create', 'UniversityController@create');
-
-Route::get('/universities/{id}/edit', 'UniversityController@edit');
-
-Route::put('/universities/{id}', 'UniversityController@update');
-
-Route::post('/universities/create', 'UniversityController@store');
-
-Route::delete('/universities/{id}', 'UniversityController@destroy');*/
-
-//Route::get('/index', 'HomeController@index')->name('index');
 
 
 
