@@ -26,7 +26,7 @@ class UniversityController extends Controller
     public function index(Request $request)
     {
         //Array of user roles with persmission to this method
-        $request->user()->authorizeRoles(['Staff_user', 'Programme_manager', 'Admin_user', 'Super_admin']);
+        $request->user()->authorizeRoles(['Staff_user', 'Programme_manager', 'Admin_user', 'Super_admin', 'IR_user']);
 
         $universities = University::all();
 
@@ -41,7 +41,7 @@ class UniversityController extends Controller
      */
     public function create(Request $request)
     {
-        $request->user()->authorizeRoles(['Admin_user', 'Super_admin']);
+        $request->user()->authorizeRoles(['Admin_user', 'Super_admin', 'IR_user']);
 
         $city = City::all();
         $country = Country::all();
@@ -74,6 +74,8 @@ class UniversityController extends Controller
         $university->postal_code = $request->input('postal_code');
         $university->country = $request->input('country');
         $university->city = $request->input('city');
+        $university->longitude = $request->input('longitude');
+        $university->latitude = $request->input('latitude');
         
         $city_id = DB::table('city')->where('city', $university->city)->pluck('Id');
         $country_id = DB::table('country')->where('country', $university->country)->pluck('Id');
@@ -132,6 +134,8 @@ class UniversityController extends Controller
         $university->postal_code = $request->input('postal_code');
         $university->country = $request->input('country');
         $university->city = $request->input('city');
+        $university->longitude = $request->input('longitude');
+        $university->latitude = $request->input('latitude');
 
         $city_id = DB::table('city')->where('city', $university->city)->pluck('Id');
         $country_id = DB::table('country')->where('country', $university->country)->pluck('Id');

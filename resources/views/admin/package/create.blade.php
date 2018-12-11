@@ -15,21 +15,12 @@
         <div class="form-group">
             {{Form::label('university', 'University')}}
             <select selected="" class="form-control" id="university" name="university">
-                <option disabled selected value> -- select an option -- </option>
-                @foreach($university as $key)
-                    <option value="{{$key->Id}}">{{$key->name}}</option>
-                @endforeach
+                <option value="142">Jönköping University</option>
             </select>
         </div>
         <div class="form-group">
-            @include('admin.package.includes.partial', ['faculty' => $faculty])
+            @include('admin.package.includes.partial', ['programme' => $programme])
         </div>
-        <div id="course">
-            <div class="form-group" id="course">
-                @include('admin.package.includes.partial2', ['course' => $course])       
-            </div>
-        </div>
-        <input type="button" id="add" class="btn btn-success" value="Add">
         <div class="form-group">
             {{Form::label('partner_university', 'Partner University')}}
             <select selected="" class="form-control" id="partner_university" name="partner_university">
@@ -47,7 +38,7 @@
         <input type="button" id="add-pu-course" class="btn btn-success" value="Add">
         <div class="form-group">
             {{Form::label('match', 'Match')}}
-            <input type="range" min="0" max="10" step="1" name="match_value" onchange="change(this.value)"></input>
+            <input type="range" min="0" max="10" step="1" name="match_value" onchange="change(this.value)">
             <span id="slider">5<span>
         </div>
         {{Form::submit('Submit', ['class' =>'btn btn-primary'])}}
@@ -114,7 +105,7 @@
         <select selected="" class="form-control pu_course" id="pu_course" name="course[]">\
             <option disabled selected value> -- select an option -- </option>\
             @foreach($course as $key)\
-                <option>{{$key->name}}</option>\
+                <option value="{{$key->Id}}">{{$key->name}}</option>\
             @endforeach\
         </select>');
         $('#pu-course').append(course);

@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Package;
 use App\Models\Course_package;
 use App\Models\Course;
-use App\Models\Faculty;
 use App\Models\University;
+use App\Models\Programme;
 use View;
 use Redirect;
 use DB;
@@ -41,11 +41,22 @@ class PackageController extends Controller
     public function create(Request $request)
     {
         //Array of user roles with persmission to this method
-        $request->user()->authorizeRoles(['Admin_user', 'Super_admin']);
+        $request->user()->authorizeRoles(['Admin_user', 'Super_admin', 'Programme_manager']);
+
+        /*if($request->user()->programme != null) {
+            $title = DB::table('programme')->where('title', '=', $request->user()->programme)->pluck('title');
+            $Id = DB::table('programme')->where('title', '=', $request->user()->programme)->pluck('Id');
+            $programme = array('Id' => $Id,
+                               'title' => $title);
+            //dd($programme);
+
+        } else {
+            $programme = Programme::all();
+        }*/
 
         $package = Package::all();
         $course = Course::all();
-        $faculty = Faculty::all();
+        $programme = Programme::all();
         $university = University::all();
         $course_package = Course_package::orderBy('Package_title')->get();
 
@@ -53,7 +64,7 @@ class PackageController extends Controller
             ->with('course', $course)
             ->with('package', $package)
             ->with('course_package', $course_package)
-            ->with('faculty', $faculty)
+            ->with('programme', $programme)
             ->with('university', $university);
     }
     
@@ -65,28 +76,27 @@ class PackageController extends Controller
      */
     public function store(Request $request)
     {
-        //dd(count($request->course));
         //Array of user roles with persmission to this method
-        $request->user()->authorizeRoles(['Admin_user', 'Super_admin']);
+        $request->user()->authorizeRoles(['Admin_user', 'Super_admin', 'Programme_manager']);
         $this->validate($request, [
             'title' => 'required'
         ]);
         $home_university_id = $request->input('university');
-        $faculty_id = $request->input('faculty');
+        $programme_id = $request->input('programme');
         $partner_university_id = $request->input('partner_university');
 
         $home_university_name = DB::table('university')->where('Id', $home_university_id)->pluck('name');
-        $faculty_name = DB::table('faculty')->where('Id', $faculty_id)->pluck('name');
+        $programme_name = DB::table('programme')->where('Id', $programme_id)->pluck('title');
         $partner_university_name = DB::table('university')->where('Id', $partner_university_id)->pluck('name');
 
         $package = new Package;
         $package->title = $request->input('title');
         $package->description = $request->input('description');
         $package->home_university = $home_university_name[0];
-        $package->faculty = $faculty_name[0];
         $package->match_value = $request->input('match_value');
+        $package->programme = $programme_name[0];
         $package->partner_university = $partner_university_name[0];
-        $package->faculty_Id = $faculty_id;
+        $package->programme_Id = $programme_id;
         $package->university_Id = $home_university_id;
         $package->pu_Id = $partner_university_id;
         $package->save();
@@ -97,8 +107,12 @@ class PackageController extends Controller
             
             $course_name = DB::table('course')->where('Id', $key)->pluck('name');
 
-            $data = array('Package_Id' => $package_id[0], 'Course_Id' => $key, 'University_Id' => $home_university_id[0], 
-            'Package_title' => $package->title, 'Course_name' => $course_name[0], 'Pu_Id' => $partner_university_id);
+            $data = array('Package_Id' => $package_id[0], 
+                'Course_Id' => $key, 
+                'University_Id' => $home_university_id[0], 
+                'Package_title' => $package->title, 
+                'Course_name' => $course_name[0], 
+                'Pu_Id' => $partner_university_id);
 
             Course_package::insert($data);    
         }
@@ -116,20 +130,22 @@ class PackageController extends Controller
     public function edit(Request $request, $id)
     {
         //Array of user roles with persmission to this method
-        $request->user()->authorizeRoles(['Admin_user', 'Super_admin']);
+        $request->user()->authorizeRoles(['Admin_user', 'Super_admin', 'Programme_manager']);
 
         $package = Package::find($id);
         $course = Course::all();
-        $faculty = Faculty::all();
+        $programme = Programme::all();
         $university = University::all();
-        $course_package = DB::table('course_package')->where('Course_Id', '=', $id)->get();
+        $pu_course = DB::table('course')->where('University_Id', '=', $package->pu_Id)->get();
+        $course_package = DB::table('course_package')->where('Package_Id', '=', $id)->get();
 
         return View::make('admin.package.edit')
             ->with('course', $course)
             ->with('package', $package)
             ->with('course_package', $course_package)
-            ->with('faculty', $faculty)
-            ->with('university', $university);
+            ->with('programme', $programme)
+            ->with('university', $university)
+            ->with('pu_course', $pu_course);
     }
         
     /**
@@ -142,26 +158,77 @@ class PackageController extends Controller
     public function update(Request $request, $id)
     {
         //Array of user roles with persmission to this method
-        $request->user()->authorizeRoles(['Admin_user', 'Super_admin']);
+        $request->user()->authorizeRoles(['Admin_user', 'Super_admin', 'Programme_manager']);
 
         $this->validate($request, [
             'title' => 'required'
         ]);
+        
+        $home_university_id = $request->input('university');
+        $programme_id = $request->input('programme');
+        $partner_university_id = $request->input('partner_university');
+        
+        $home_university_name = DB::table('university')->where('Id', $home_university_id)->pluck('name');
+        $programme_name = DB::table('programme')->where('Id', $programme_id)->pluck('title');
+        $partner_university_name = DB::table('university')->where('Id', $partner_university_id)->pluck('name');
 
         $package = Package::find($id);
         $package->title = $request->input('title');
         $package->description = $request->input('description');
-        $package->home_university = $request->input('university');
-        $package->faculty = $request->input('faculty');
+        $package->home_university = $home_university_name[0];
+        $package->match_value = $request->input('match_value');
+        $package->programme = $request->input('programme');
+        $package->partner_university = $partner_university_name[0];
+        $package->programme_Id = $programme_id;
+        $package->university_Id = $home_university_id;
+        $package->pu_Id = $partner_university_id;
         $package->save();
+        
+        $package_id = DB::table('package')->where('title', $package->title)->pluck('Id');
+        
+        $course_p = $request->input('c_package');
+        $index = 0;
 
-        return redirect('home/package/'.$id.'/edit');
+        foreach($request->input('edit_course') as $key) {
+            $course_name = DB::table('course')->where('Id', '=', $key)->pluck('name');
+            
+            $data = array('Package_Id' => $package_id[0], 
+                'Course_Id' => $key, 
+                'University_Id' => $home_university_id[0], 
+                'Package_title' => $package->title, 
+                'Course_name' => $course_name[0], 
+                'Pu_Id' => $partner_university_id);
+
+            DB::table('course_package')
+                    ->where('Package_Id', '=', $id)
+                    ->where('id', '=', $course_p[$index])
+                    ->update($data);
+            
+            $index ++;   
+        }
+        
+        if($request->input('course')) {
+            foreach($request->input('course') as $key) {
+                $course_name = DB::table('course')->where('Id', '=', $key)->pluck('name');
+    
+                $data = array('Package_Id' => $package_id[0], 
+                    'Course_Id' => $key, 
+                    'University_Id' => $home_university_id[0], 
+                    'Package_title' => $package->title, 
+                    'Course_name' => $course_name[0], 
+                    'Pu_Id' => $partner_university_id);
+    
+                Course_package::insert($data);
+            }
+        }
+
+        return redirect('home/package');
     }
 
     public function updatePackage(Request $request) {
         
         //Array of user roles with persmission to this method
-        $request->user()->authorizeRoles(['Admin_user', 'Super_admin']);
+        $request->user()->authorizeRoles(['Admin_user', 'Super_admin', 'Programme_manager']);
 
         $this->validate($request, [
             'package' => 'required',
@@ -193,7 +260,7 @@ class PackageController extends Controller
     public function destroy(Request $request, $id)
     {   
         //Array of user roles with persmission to this method
-        $request->user()->authorizeRoles(['Admin_user', 'Super_admin']);
+        $request->user()->authorizeRoles(['Admin_user', 'Super_admin', 'Programme_manager']);
 
         Package::destroy($id);
 
@@ -203,22 +270,22 @@ class PackageController extends Controller
     public function removeCourse(Request $request) {
         
         //Array of user roles with persmission to this method
-        $request->user()->authorizeRoles(['Admin_user', 'Super_admin']);
+        $request->user()->authorizeRoles(['Admin_user', 'Super_admin', 'Programme_manager']);
 
-        $id = $request->input('id');
-        $pid = $request->input('pid');
-        DB::table('course_package')->where('Course_Id', '=', $id)->delete();
+        $p_id = $request->input('p_id');
+        $c_id = $request->input('c_id');
+        DB::table('course_package')->where('id', '=', $c_id)->delete();
 
-        return redirect('home/package/'.$pid.'/edit');
+        return redirect('home/package/'.$p_id.'/edit');
     }
 
     public function getFaculty(Request $request)
     {
         //Array of user roles with persmission to this method
-        $request->user()->authorizeRoles(['Admin_user', 'Super_admin']);
+        $request->user()->authorizeRoles(['Admin_user', 'Super_admin', 'Programme_manager']);
 
         $university_id = $request->input('university_id');
-        $faculty = Faculty::where('University_Id', '=', $university_id)->get();
+        $faculty = Programme::where('University_Id', '=', $university_id)->get();
 
         return response()->json($faculty);
 
@@ -227,7 +294,7 @@ class PackageController extends Controller
     public function getCourse(Request $request)
     {
         //Array of user roles with persmission to this method
-        $request->user()->authorizeRoles(['Admin_user', 'Super_admin']);
+        $request->user()->authorizeRoles(['Admin_user', 'Super_admin', 'Programme_manager']);
 
         $university_id = $request->input('university_id');
         $course = Course::where('University_Id', '=', $university_id)->get();

@@ -26,6 +26,14 @@
                 {{Form::text('postal_code', '', ['class' => 'form-control', 'placeholder' => 'Postal code'])}}
             </div>
             <div class="form-group">
+                {{Form::label('longitude', 'Longitude')}}
+                {{Form::text('longitude', '', ['class' => 'form-control', 'placeholder' => 'Longitude'])}}
+            </div>
+            <div class="form-group">
+                {{Form::label('latitude', 'Latitude')}}
+                {{Form::text('latitude', '', ['class' => 'form-control', 'placeholder' => 'Latitude'])}}
+            </div>
+            <div class="form-group">
                 {{Form::label('country', 'Country')}}
                 <select selected="" class="form-control" name="country">
                     <option disabled selected value> -- select an option -- </option>

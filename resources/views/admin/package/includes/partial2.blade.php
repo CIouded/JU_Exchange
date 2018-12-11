@@ -1,7 +1,7 @@
-{{Form::label('course', 'Course')}}
-    <select selected="" class="form-control course" name="course[]">
-        <option disabled selected value> -- select an option -- </option>
-        @foreach($course as $key)
-            <option>{{$key->name}}</option>
+{{Form::label('programme', 'Programme')}}
+    <select selected="" class="form-control" id="programme" name="programme">
+        <option value="{{$package->programme_Id}}">{{ $package->programme }}</option>
+        @foreach($programme as $key)
+            <option value="{{$key->Id}}">{{$key->title}}</option>
         @endforeach
     </select>
